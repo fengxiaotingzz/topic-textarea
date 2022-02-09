@@ -7,7 +7,13 @@ import "./index.less";
 function TopicTextarea({ placeholder = "" }) {
   return (
     <div className="topic-textarea-box">
-      <TextArea maxLen={1000} />
+      <TextArea
+        maxLen={1000}
+        // onInputTopic={(e) => console.log(e)}
+        topicList={["11", "22"]}
+        // onClickTopicItem={(e) => console.log(e)}
+        onChange={(e) => console.log(e)}
+      />
     </div>
   );
 }

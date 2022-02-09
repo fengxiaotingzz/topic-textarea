@@ -6,14 +6,18 @@ import "./index.less";
 export default function TopicTextarea({
   placeholder = "",
   maxLen,
+  topicList = [],
   onChange = () => {},
+  onInputTopic = () => {},
+  onClickTopicItem = () => {},
 }) {
   const [data, setData] = useState("");
   const [hiddenData, setHiddenData] = useState("");
   const [showTopic, setShowTopic] = useState(false);
   const [topicPos, setTopicPos] = useState({ width: 0, height: 0 });
   const inputRef = useRef();
-  const hiddenRef = useRef();
+  const hiddenWidthRef = useRef();
+  const hiddenHeightRef = useRef();
   const textWidthRef = useRef(0);
   const lastLineNumber = useRef(0);
 
@@ -40,29 +44,17 @@ export default function TopicTextarea({
   // 获取话题显示的位置
   const getTopicListPos = () => {
     const inputWidth = inputRef.current?.offsetWidth;
-    let hiddenWrap = hiddenRef.current?.getBoundingClientRect();
+    let hiddenWrap = hiddenWidthRef.current?.getBoundingClientRect();
     let hiddenWidth = hiddenWrap?.width;
-    let hiddenHeight = hiddenWrap?.height;
     let lineNumber = parseInt(hiddenWidth / inputWidth) + 1;
-    const lineFeedNum = data?.match(/\n/gi)?.length || 0;
 
     if (Math.floor(hiddenWidth / inputWidth) === 0) {
       textWidthRef.current = parseInt(hiddenWidth / hiddenData?.length);
     }
     hiddenWidth = hiddenWidth + textWidthRef.current * lineNumber;
 
-    // hiddenWidth二次赋值之后，值最准确，计算height时，应以该值为准
-    lineNumber = parseInt(hiddenWidth / inputWidth) + 1;
-
-    let height = lineNumber * hiddenHeight;
     const width = hiddenWidth % inputWidth;
-    const lastLineValue = lastLineNumber.current;
-    const resultLineNumber = lastLineValue + 1;
-    height = (lineFeedNum + resultLineNumber) * hiddenHeight;
-
-    console.log(lineFeedNum, resultLineNumber, height);
-
-    lastLineNumber.current = lineNumber;
+    const height = hiddenHeightRef.current?.offsetHeight;
 
     return {
       width,
@@ -71,7 +63,7 @@ export default function TopicTextarea({
   };
 
   const onChangeTextArea = (e) => {
-    const value = e?.target?.value;
+    let value = e?.target?.value;
     const len = value?.length;
 
     if (len <= maxLen) {
@@ -98,9 +90,32 @@ export default function TopicTextarea({
     }
   };
 
+  // 获取当前话题
+  const getCurrentTopic = () => {
+    const index = data?.lastIndexOf("#");
+    const topic = data?.slice(index + 1, data?.length);
+    onInputTopic(topic);
+  };
+
+  // 点击话题列表中的话题时
+  const onClickTopicItemFunc = (e) => {
+    const index = data?.lastIndexOf("#");
+    const len = data?.length;
+    const resultValue =
+      data?.substring(0, index) +
+      "#" +
+      e +
+      "#" +
+      data?.substring(index + 1, len);
+    setData(resultValue);
+    onChange(resultValue);
+    onClickTopicItem(e);
+  };
+
   useEffect(() => {
     const markNumber = getMarkNumber(hiddenData);
     if (markNumber % 2 !== 0) {
+      getCurrentTopic();
       setTopicPos(getTopicListPos());
       setShowTopic(true);
     } else {
@@ -118,15 +133,31 @@ export default function TopicTextarea({
         value={data}
         ref={inputRef}
       />
-      <pre ref={hiddenRef} className="hidden-text">
+      <pre ref={hiddenWidthRef} className="hidden-text-width">
         {hiddenData}
       </pre>
+      <pre
+        ref={hiddenHeightRef}
+        className="hidden-text-height"
+        dangerouslySetInnerHTML={{
+          __html: data?.replace(/\n/gi, (str) => {
+            return "<br />";
+          }),
+        }}
+      ></pre>
       {maxLen && (
         <div>
           {data?.length}/{maxLen}
         </div>
       )}
-      {showTopic && <TopicList {...topicPos} />}
+      {showTopic && (
+        <TopicList
+          {...topicPos}
+          topicListData={topicList}
+          onClickTopicItem={onClickTopicItemFunc}
+          setShowTopic={setShowTopic}
+        />
+      )}
     </div>
   );
 }
