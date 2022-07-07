@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import TextArea from './textarea/index';
+import TextArea from '../src/textarea/index';
 
 import './index.less';
 
@@ -13,6 +13,7 @@ function TopicTextarea({ placeholder = '' }) {
         topicList={['11', '22']}
         // onClickTopicItem={(e) => console.log(e)}
         onChange={(e) => console.log(e)}
+        renderTopicItem={({ value, index }) => <div>xxxx{value}</div>}
       />
     </div>
   );

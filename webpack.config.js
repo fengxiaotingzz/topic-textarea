@@ -6,11 +6,10 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: './src/test.js',
+  entry: './example/test.js',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: '[name]_[chunkhash:8].js',
-    format: 'cjs',
   },
   module: {
     rules: [
@@ -19,7 +18,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            include: [path.resolve('./src/')],
+            include: [path.resolve('./src/'), path.resolve('./example/')],
             presets: ['@babel/env', '@babel/preset-react'],
           },
         },
@@ -45,7 +44,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './example/index.html',
       filename: 'index.html',
     }),
     new MiniCssExtractPlugin({

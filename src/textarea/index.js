@@ -7,9 +7,11 @@ export default function TopicTextarea({
   placeholder = '',
   maxLen,
   topicList = [],
+  renderTopicItem,
   onChange = () => {},
   onInputTopic = () => {},
   onClickTopicItem = () => {},
+  ...other
 }) {
   const [data, setData] = useState('');
   const [hiddenData, setHiddenData] = useState('');
@@ -148,6 +150,7 @@ export default function TopicTextarea({
         onClick={onClickInput}
         value={data}
         ref={inputRef}
+        {...other}
       />
       <pre ref={hiddenWidthRef} className="hidden-text-width">
         {hiddenData}
@@ -172,6 +175,7 @@ export default function TopicTextarea({
           topicListData={topicList}
           onClickTopicItem={onClickTopicItemFunc}
           setShowTopic={setShowTopic}
+          renderTopicItem={renderTopicItem}
         />
       )}
     </div>

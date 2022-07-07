@@ -9,13 +9,14 @@ export default function TopicList({
   setShowTopic,
   onClickTopicItem = () => {},
   lineHeight = 15,
+  renderTopicItem,
 }) {
   return (
     <div
       style={{ left: width, top: height + lineHeight }}
       className="topic-list"
     >
-      {topicListData?.map((val) => {
+      {topicListData?.map((val, i) => {
         return (
           <div
             className="topic-item"
@@ -24,7 +25,9 @@ export default function TopicList({
               setShowTopic(false);
             }}
           >
-            #{val}
+            {renderTopicItem
+              ? renderTopicItem({ value: val, index: i })
+              : `#${val}`}
           </div>
         );
       })}
