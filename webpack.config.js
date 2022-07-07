@@ -1,30 +1,33 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
-  mode: "production",
-  entry: "./src/index.js",
+  mode: 'production',
+  entry: './src/test.js',
   output: {
-    path: path.join(__dirname, "dist"),
-    filename: "[name]_[chunkhash:8].js",
+    path: path.join(__dirname, 'dist'),
+    filename: '[name]_[chunkhash:8].js',
+    format: 'cjs',
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
-            include: [path.resolve("./src/")],
-            presets: ["@babel/env", "@babel/preset-react"],
+            include: [path.resolve('./src/')],
+            presets: ['@babel/env', '@babel/preset-react'],
           },
         },
       },
+      { test: /\.css$/i, use: [MiniCssExtractPlugin.loader, 'css-loader'] },
       {
         test: /\.less$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
       },
     ],
   },
@@ -35,17 +38,20 @@ module.exports = {
   },
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin({ extractComments: false })],
+    minimizer: [
+      new TerserPlugin({ extractComments: false }),
+      new CssMinimizerPlugin(),
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./src/index.html",
-      filename: "index.html",
+      template: './src/index.html',
+      filename: 'index.html',
     }),
     new MiniCssExtractPlugin({
-      filename: "[name]_[contenthash:8].css",
+      filename: '[name]_[contenthash:8].css',
       ignoreOrder: false,
     }),
   ],
-  stats: "errors-only",
+  stats: 'errors-only',
 };

@@ -1,25 +1,25 @@
-import React, { useState, useRef, useEffect } from "react";
-import TopicList from "../topicList";
+import React, { useState, useRef, useEffect } from 'react';
+import TopicList from '../topicList';
 
-import "./index.less";
+import './index.less';
 
 export default function TopicTextarea({
-  placeholder = "",
+  placeholder = '',
   maxLen,
   topicList = [],
   onChange = () => {},
   onInputTopic = () => {},
   onClickTopicItem = () => {},
 }) {
-  const [data, setData] = useState("");
-  const [hiddenData, setHiddenData] = useState("");
+  const [data, setData] = useState('');
+  const [hiddenData, setHiddenData] = useState('');
   const [showTopic, setShowTopic] = useState(false);
   const [topicPos, setTopicPos] = useState({ width: 0, height: 0 });
   const inputRef = useRef();
   const hiddenWidthRef = useRef();
   const hiddenHeightRef = useRef();
   const textWidthRef = useRef(0);
-  const lastLineNumber = useRef(0);
+  const isCompositionRef = useRef(false);
 
   // 判断当前输入中#号的个数
   const getMarkNumber = (value) => value?.match(/#/gi)?.length || 0;
@@ -34,7 +34,7 @@ export default function TopicTextarea({
     } else {
       // IE
       const range = document?.selection?.createRange();
-      range?.moveStart("character", -target.value.length);
+      range?.moveStart('character', -target.value.length);
       position = range?.text?.length;
     }
 
@@ -69,9 +69,12 @@ export default function TopicTextarea({
     if (len <= maxLen) {
       setData(value);
       onChange(value);
-      let resultValue = "";
 
-      const arr = value?.split("");
+      if (isCompositionRef.current) return false;
+
+      let resultValue = '';
+
+      const arr = value?.split('');
       let lineFeedIndex = -1;
       arr?.reverse().forEach((val, i) => {
         if (value.charCodeAt(i) === 10) {
@@ -92,24 +95,31 @@ export default function TopicTextarea({
 
   // 获取当前话题
   const getCurrentTopic = () => {
-    const index = data?.lastIndexOf("#");
+    const index = data?.lastIndexOf('#');
     const topic = data?.slice(index + 1, data?.length);
+
     onInputTopic(topic);
   };
 
   // 点击话题列表中的话题时
   const onClickTopicItemFunc = (e) => {
-    const index = data?.lastIndexOf("#");
+    const index = data?.lastIndexOf('#');
     const len = data?.length;
     const resultValue =
       data?.substring(0, index) +
-      "#" +
+      '#' +
       e +
-      "#" +
+      '#' +
       data?.substring(index + 1, len);
     setData(resultValue);
     onChange(resultValue);
     onClickTopicItem(e);
+  };
+
+  // 点击输入框
+  const onClickInput = (e) => {
+    const index = getCursorIndex();
+    if (index !== e?.target?.value?.length && showTopic) setShowTopic(false);
   };
 
   useEffect(() => {
@@ -130,6 +140,12 @@ export default function TopicTextarea({
         placeholder={placeholder}
         className="topic-textarea"
         onChange={onChangeTextArea}
+        onCompositionStart={(e) => (isCompositionRef.current = true)}
+        onCompositionEnd={(e) => {
+          isCompositionRef.current = false;
+          onChangeTextArea(e);
+        }}
+        onClick={onClickInput}
         value={data}
         ref={inputRef}
       />
@@ -141,7 +157,7 @@ export default function TopicTextarea({
         className="hidden-text-height"
         dangerouslySetInnerHTML={{
           __html: data?.replace(/\n/gi, (str) => {
-            return "<br />";
+            return '<br />';
           }),
         }}
       ></pre>
