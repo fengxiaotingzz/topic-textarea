@@ -24,6 +24,7 @@ export default function TopicList({
               onClickTopicItem(val);
               setShowTopic(false);
             }}
+            key={i}
           >
             {renderTopicItem
               ? renderTopicItem({ value: val, index: i })

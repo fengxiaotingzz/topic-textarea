@@ -5,7 +5,7 @@ import './index.less';
 
 export default function TopicTextarea({
   placeholder = '',
-  maxLen,
+  maxLen = 100,
   topicList = [],
   renderTopicItem,
   onChange = () => {},
@@ -169,15 +169,13 @@ export default function TopicTextarea({
           {data?.length}/{maxLen}
         </div>
       )}
-      {showTopic && (
-        <TopicList
-          {...topicPos}
-          topicListData={topicList}
-          onClickTopicItem={onClickTopicItemFunc}
-          setShowTopic={setShowTopic}
-          renderTopicItem={renderTopicItem}
-        />
-      )}
+      <TopicList
+        {...topicPos}
+        topicListData={topicList}
+        onClickTopicItem={onClickTopicItemFunc}
+        setShowTopic={setShowTopic}
+        renderTopicItem={renderTopicItem}
+      />
     </div>
   );
 }

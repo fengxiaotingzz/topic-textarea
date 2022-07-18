@@ -1,15 +1,17 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: './example/test.js',
+  entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: '[name]_[chunkhash:8].js',
+    filename: 'bundle.js',
+    // library: {
+    //   type: 'commonjs',
+    // },
   },
   module: {
     rules: [
@@ -18,7 +20,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            include: [path.resolve('./src/'), path.resolve('./example/')],
+            include: [path.resolve('./src/')],
             presets: ['@babel/env', '@babel/preset-react'],
           },
         },
@@ -43,12 +45,8 @@ module.exports = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './example/index.html',
-      filename: 'index.html',
-    }),
     new MiniCssExtractPlugin({
-      filename: '[name]_[contenthash:8].css',
+      filename: 'bundle.css',
       ignoreOrder: false,
     }),
   ],
