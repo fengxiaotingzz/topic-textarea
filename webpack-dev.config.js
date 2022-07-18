@@ -2,13 +2,17 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'production',
   entry: './example/test.js',
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js',
+    path: path.join(__dirname, 'public'),
+    filename: 'index.js',
+    library: {
+      type: 'commonjs',
+    },
   },
   module: {
     rules: [
@@ -17,7 +21,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            include: [path.resolve('./src/'), path.resolve('./example/')],
+            exclude: [path.resolve('node_modules')],
             presets: ['@babel/env', '@babel/preset-react'],
           },
         },
@@ -42,6 +46,7 @@ module.exports = {
     ],
   },
   plugins: [
+    new HtmlWebpackPlugin({ template: './example/index.html' }),
     new MiniCssExtractPlugin({
       filename: 'bundle.css',
       ignoreOrder: false,

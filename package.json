@@ -2,7 +2,7 @@
   "name": "topic-textarea",
   "version": "1.0.0",
   "description": "",
-  "main": "./index.js",
+  "main": "./dist/bundle.js",
   "scripts": {
     "build": "rimraf ./dist/ && cross-env MODE_ENV=production && webpack --config=./webpack.config.js",
     "dev": "npm run build && cross-env MODE_ENV=production && webpack-dev-server --open"
