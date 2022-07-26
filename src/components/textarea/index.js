@@ -169,13 +169,15 @@ export default function TopicTextarea({
           {data?.length}/{maxLen}
         </div>
       )}
-      <TopicList
-        {...topicPos}
-        topicListData={topicList}
-        onClickTopicItem={onClickTopicItemFunc}
-        setShowTopic={setShowTopic}
-        renderTopicItem={renderTopicItem}
-      />
+      {showTopic && (
+        <TopicList
+          {...topicPos}
+          topicListData={topicList}
+          onClickTopicItem={onClickTopicItemFunc}
+          setShowTopic={setShowTopic}
+          renderTopicItem={renderTopicItem}
+        />
+      )}
     </div>
   );
 }

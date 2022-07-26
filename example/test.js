@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import TextArea from '../src/textarea/index';
+import TextArea from '../src/index';
 
 import './index.less';
 

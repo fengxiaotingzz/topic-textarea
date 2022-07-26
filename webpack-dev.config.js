@@ -8,8 +8,8 @@ module.exports = {
   mode: 'production',
   entry: './example/test.js',
   output: {
-    path: path.join(__dirname, 'public'),
-    filename: 'index.js',
+    path: path.join(__dirname, 'dist'),
+    filename: 'bundle.js',
     library: {
       type: 'commonjs',
     },
