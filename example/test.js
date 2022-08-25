@@ -13,6 +13,7 @@ function TopicTextarea({ placeholder = '' }) {
         topicList={['11', '22']}
         onClickTopicItem={(e) => console.log(222, e)}
         renderTopicItem={({ value, index }) => <div>xxxx{value}</div>}
+        onChange={(e) => console.log(e)}
       />
     </div>
   );

@@ -14,5 +14,6 @@ import TextArea from 'topic-textarea';
   topicList={['11', '22']}
   onClickTopicItem={(e) => console.log(222, e)}
   renderTopicItem={({ value, index }) => <div>xxxx{value}</div>}
+  onChange={(e) => console.log(e)}
 />;
 ```

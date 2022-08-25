@@ -169,10 +169,10 @@ export default function TopicTextarea({
         ref={inputRef}
         {...other}
       />
-      <pre ref={hiddenWidthRef} className="hidden-text-width">
+      <div ref={hiddenWidthRef} className="hidden-text-width">
         {hiddenWidthData}
-      </pre>
-      <pre
+      </div>
+      <div
         ref={hiddenHeightRef}
         className="hidden-text-height"
         dangerouslySetInnerHTML={{
@@ -180,7 +180,7 @@ export default function TopicTextarea({
             return '<br />';
           }),
         }}
-      ></pre>
+      ></div>
       {maxLen && (
         <div className="textarea-number">
           {data?.length}/{maxLen}
