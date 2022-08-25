@@ -1,21 +1,11 @@
-import React from "react";
-import ReactDom from "react-dom";
-import TextArea from "./textarea/index";
+// export { default as Textarea } from './components/textarea';
 
-import "./index.less";
+// require('./components/textarea/index.less');
+// require('./components/topicList/index.less');
 
-function TopicTextarea({ placeholder = "" }) {
-  return (
-    <div className="topic-textarea-box">
-      <TextArea
-        maxLen={1000}
-        // onInputTopic={(e) => console.log(e)}
-        topicList={["11", "22"]}
-        // onClickTopicItem={(e) => console.log(e)}
-        onChange={(e) => console.log(e)}
-      />
-    </div>
-  );
-}
+import Textarea from './components/textarea';
 
-ReactDom.render(<TopicTextarea />, document.getElementById("app"));
+require('./components/textarea/index.less');
+require('./components/topicList/index.less');
+
+export default Textarea;
