@@ -96,12 +96,15 @@ export default function TopicTextarea({
   const onClickTopicItemFunc = (e) => {
     const index = indexRef.current;
     const len = data?.length;
+    const lastMarkIndex = data?.substring(0, index).lastIndexOf('#');
     const resultValue =
-      data?.substring(0, index) + e + '#' + data?.substring(index, len);
+      data?.substring(0, lastMarkIndex + 1) +
+      e +
+      '#' +
+      data?.substring(index, len);
 
     setData(resultValue);
     onChange(resultValue);
-    onClickTopicItem(e);
     setHiddenWidthData('');
     setHiddenHeightData('');
   };
@@ -127,6 +130,11 @@ export default function TopicTextarea({
       setHiddenWidthData(resultValue);
     } else {
       setShowTopic(false);
+
+      const arr = data.match(/(?<=#).*?(?=#)/gi);
+      const topics = arr?.filter((val, i) => i % 2 === 0);
+
+      onClickTopicItem(topics);
     }
   }, [data]);
 
