@@ -1,51 +1,74 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+// @noflow
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-  mode: "production",
-  entry: "./src/index.js",
+  mode: 'production',
+  context: __dirname,
+  entry: './src/index.js',
   output: {
-    path: path.join(__dirname, "dist"),
-    filename: "[name]_[chunkhash:8].js",
+    path: __dirname + '/dist',
+    filename: 'bundle.js',
+    library: {
+      type: 'umd',
+    },
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin({
+        test: /\.css$/,
+        minify: CssMinimizerPlugin.cleanCssMinify,
+      }),
+    ],
+  },
+  externals: {
+    react: {
+      root: 'react',
+      commonjs2: 'react',
+      commonjs: 'react',
+      amd: 'react',
+    },
+    'react-dom': {
+      root: 'react-dom',
+      commonjs2: 'react-dom',
+      commonjs: 'react-dom',
+      amd: 'react-dom',
+    },
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            include: [path.resolve("./src/")],
-            presets: ["@babel/env", "@babel/preset-react"],
-          },
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        options: {
+          cacheDirectory: true,
+          presets: ['@babel/env', '@babel/preset-react', '@babel/preset-flow'],
         },
       },
       {
         test: /\.less$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
       },
     ],
   },
-  performance: {
-    hints: false,
-    maxEntrypointSize: 50000000000,
-    maxAssetSize: 4000000000000,
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin({ extractComments: false })],
-  },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: "./src/index.html",
-      filename: "index.html",
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production'),
+      },
     }),
+    new UglifyJsPlugin({ test: /\.js$/g, uglifyOptions: { comment: false } }),
+    new webpack.optimize.ModuleConcatenationPlugin(),
     new MiniCssExtractPlugin({
-      filename: "[name]_[contenthash:8].css",
+      filename: 'bundle.css',
       ignoreOrder: false,
     }),
   ],
-  stats: "errors-only",
+  resolve: {
+    extensions: ['.js', '.jsx'],
+  },
 };

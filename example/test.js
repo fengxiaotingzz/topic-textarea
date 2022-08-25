@@ -12,7 +12,6 @@ function TopicTextarea({ placeholder = '' }) {
         // onInputTopic={(e) => console.log(e)}
         topicList={['11', '22']}
         // onClickTopicItem={(e) => console.log(e)}
-        // onChange={(e) => console.log(e)}
         renderTopicItem={({ value, index }) => <div>xxxx{value}</div>}
       />
     </div>

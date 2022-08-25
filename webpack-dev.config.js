@@ -11,12 +11,6 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: '[name]_[chunkhash:8].js',
   },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, './example'),
-      watch: true,
-    },
-  },
   module: {
     rules: [
       {
