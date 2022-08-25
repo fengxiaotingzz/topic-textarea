@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import TextArea from '../src/index';
+import Textarea from '../src/index';
 
 import './index.less';
 
 function TopicTextarea({ placeholder = '' }) {
   return (
     <div className="topic-textarea-box">
-      <TextArea
+      <Textarea
         maxLen={1000}
         // onInputTopic={(e) => console.log(e)}
         topicList={['11', '22']}

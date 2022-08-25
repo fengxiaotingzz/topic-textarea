@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import TopicList from '../topicList';
 
-import './index.less';
-
 export default function TopicTextarea({
   placeholder = '',
   maxLen = 100,
@@ -22,6 +20,8 @@ export default function TopicTextarea({
   const hiddenHeightRef = useRef();
   const textWidthRef = useRef(0);
   const isCompositionRef = useRef(false);
+  const indexRef = useRef();
+  const lineNumberRef = useRef(0);
 
   // 判断当前输入中#号的个数
   const getMarkNumber = (value) => value?.match(/#/gi)?.length || 0;
@@ -46,6 +46,7 @@ export default function TopicTextarea({
   // 获取话题显示的位置
   const getTopicListPos = () => {
     const inputWidth = inputRef.current?.offsetWidth;
+    const inputHeight = inputRef.current?.offsetHeight;
     let hiddenWrap = hiddenWidthRef.current?.getBoundingClientRect();
     let hiddenWidth = hiddenWrap?.width;
     let lineNumber = parseInt(hiddenWidth / inputWidth) + 1;
@@ -56,7 +57,13 @@ export default function TopicTextarea({
     hiddenWidth = hiddenWidth + textWidthRef.current * lineNumber;
 
     const width = hiddenWidth % inputWidth;
-    const height = hiddenHeightRef.current?.offsetHeight;
+    let height = hiddenHeightRef.current?.offsetHeight;
+
+    if (height > inputHeight) {
+      height = inputHeight;
+    }
+
+    lineNumberRef.current = lineNumber;
 
     return {
       width,
@@ -78,16 +85,18 @@ export default function TopicTextarea({
 
       const arr = value?.split('');
       let lineFeedIndex = -1;
-      arr?.reverse().forEach((val, i) => {
+      arr?.forEach((val, i) => {
         if (value.charCodeAt(i) === 10) {
           lineFeedIndex = i;
         }
       });
 
+      const index = getCursorIndex();
+      indexRef.current = lineFeedIndex + index;
+
       if (lineFeedIndex > -1) {
-        resultValue = value.slice(lineFeedIndex, len);
+        resultValue = value.slice(lineFeedIndex + 1, len);
       } else {
-        const index = getCursorIndex();
         resultValue = value.slice(0, index + 1);
       }
 
@@ -105,14 +114,12 @@ export default function TopicTextarea({
 
   // 点击话题列表中的话题时
   const onClickTopicItemFunc = (e) => {
-    const index = data?.lastIndexOf('#');
+    const index = indexRef.current;
     const len = data?.length;
     const resultValue =
-      data?.substring(0, index) +
-      '#' +
-      e +
-      '#' +
-      data?.substring(index + 1, len);
+      data?.substring(0, index + 1) + e + '#' + data?.substring(index + 1, len);
+
+    console.log(111, data, index);
     setData(resultValue);
     onChange(resultValue);
     onClickTopicItem(e);
@@ -165,7 +172,7 @@ export default function TopicTextarea({
         }}
       ></pre>
       {maxLen && (
-        <div>
+        <div className="textarea-number">
           {data?.length}/{maxLen}
         </div>
       )}

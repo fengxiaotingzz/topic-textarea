@@ -1,28 +1,52 @@
-const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
+// @noflow
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const webpack = require('webpack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   mode: 'production',
+  context: __dirname,
   entry: './src/index.js',
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: __dirname + '/dist',
     filename: 'bundle.js',
-    libraryTarget: 'umd',
-    library: 'TopicTextarea',
+    library: {
+      type: 'umd',
+    },
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new CssMinimizerPlugin({
+        test: /\.css$/,
+        minify: CssMinimizerPlugin.cleanCssMinify,
+      }),
+    ],
+  },
+  externals: {
+    react: {
+      root: 'react',
+      commonjs2: 'react',
+      commonjs: 'react',
+      amd: 'react',
+    },
+    'react-dom': {
+      root: 'react-dom',
+      commonjs2: 'react-dom',
+      commonjs: 'react-dom',
+      amd: 'react-dom',
+    },
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            include: [path.resolve('./src/')],
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-          },
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        options: {
+          cacheDirectory: true,
+          presets: ['@babel/env', '@babel/preset-react', '@babel/preset-flow'],
         },
       },
       {
@@ -31,40 +55,13 @@ module.exports = {
       },
     ],
   },
-  // devtool: 'nosources-source-map',
-  externals: {
-    react: {
-      commonjs: 'react',
-      commonjs2: 'react',
-      amd: 'react',
-      // React dep should be available as window.React, not window.react
-      root: 'React',
-    },
-    'react-dom': {
-      commonjs: 'react-dom',
-      commonjs2: 'react-dom',
-      amd: 'react-dom',
-      root: 'ReactDOM',
-    },
-  },
-  performance: {
-    hints: false,
-    maxEntrypointSize: 50000000000,
-    maxAssetSize: 4000000000000,
-  },
-  optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({ extractComments: false }),
-      new CssMinimizerPlugin(),
-    ],
-  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
       },
     }),
+    new UglifyJsPlugin({ test: /\.js$/g, uglifyOptions: { comment: false } }),
     new webpack.optimize.ModuleConcatenationPlugin(),
     new MiniCssExtractPlugin({
       filename: 'bundle.css',
@@ -74,5 +71,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
   },
-  stats: 'errors-only',
 };
