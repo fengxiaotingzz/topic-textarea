@@ -12,7 +12,8 @@ export default function TopicTextarea({
   ...other
 }) {
   const [data, setData] = useState('');
-  const [hiddenData, setHiddenData] = useState('');
+  const [hiddenWidthData, setHiddenWidthData] = useState('');
+  const [hiddenHeightData, setHiddenHeightData] = useState('');
   const [showTopic, setShowTopic] = useState(false);
   const [topicPos, setTopicPos] = useState({ width: 0, height: 0 });
   const inputRef = useRef();
@@ -52,12 +53,12 @@ export default function TopicTextarea({
     let lineNumber = parseInt(hiddenWidth / inputWidth) + 1;
 
     if (Math.floor(hiddenWidth / inputWidth) === 0) {
-      textWidthRef.current = parseInt(hiddenWidth / hiddenData?.length);
+      textWidthRef.current = parseInt(hiddenWidth / hiddenWidthData?.length);
     }
     hiddenWidth = hiddenWidth + textWidthRef.current * lineNumber;
 
     const width = hiddenWidth % inputWidth;
-    let height = hiddenHeightRef.current?.offsetHeight;
+    let height = hiddenHeightRef.current?.clientHeight;
 
     if (height > inputHeight) {
       height = inputHeight;
@@ -66,7 +67,7 @@ export default function TopicTextarea({
     lineNumberRef.current = lineNumber;
 
     return {
-      width,
+      width: width,
       height,
     };
   };
@@ -80,27 +81,6 @@ export default function TopicTextarea({
       onChange(value);
 
       if (isCompositionRef.current) return false;
-
-      let resultValue = '';
-
-      const arr = value?.split('');
-      let lineFeedIndex = -1;
-      arr?.forEach((val, i) => {
-        if (value.charCodeAt(i) === 10) {
-          lineFeedIndex = i;
-        }
-      });
-
-      const index = getCursorIndex();
-      indexRef.current = lineFeedIndex + index;
-
-      if (lineFeedIndex > -1) {
-        resultValue = value.slice(lineFeedIndex + 1, len);
-      } else {
-        resultValue = value.slice(0, index + 1);
-      }
-
-      setHiddenData(resultValue);
     }
   };
 
@@ -117,30 +97,52 @@ export default function TopicTextarea({
     const index = indexRef.current;
     const len = data?.length;
     const resultValue =
-      data?.substring(0, index + 1) + e + '#' + data?.substring(index + 1, len);
+      data?.substring(0, index) + e + '#' + data?.substring(index, len);
 
-    console.log(111, data, index);
     setData(resultValue);
     onChange(resultValue);
     onClickTopicItem(e);
+    setHiddenWidthData('');
+    setHiddenHeightData('');
   };
 
   // 点击输入框
   const onClickInput = (e) => {
     const index = getCursorIndex();
-    if (index !== e?.target?.value?.length && showTopic) setShowTopic(false);
+    indexRef.current = index;
+
+    if (index !== e.target.value.length && showTopic) setShowTopic(false);
   };
 
   useEffect(() => {
-    const markNumber = getMarkNumber(hiddenData);
+    const markNumber = getMarkNumber(data);
+
+    if (markNumber % 2 !== 0) {
+      const index = getCursorIndex();
+      const lastLineIndex = data.substring(0, index).lastIndexOf('\n');
+      const resultValue = data?.substring(lastLineIndex + 1, index);
+      indexRef.current = index;
+
+      setHiddenHeightData(data.substring(0, index));
+      setHiddenWidthData(resultValue);
+    } else {
+      setShowTopic(false);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const markNumber = getMarkNumber(data);
+
     if (markNumber % 2 !== 0) {
       getCurrentTopic();
       setTopicPos(getTopicListPos());
       setShowTopic(true);
     } else {
-      showTopic && setShowTopic(false);
+      if (showTopic) {
+        setShowTopic(false);
+      }
     }
-  }, [hiddenData]);
+  }, [hiddenWidthData]);
 
   return (
     <div className="topic-textarea-comp">
@@ -160,13 +162,13 @@ export default function TopicTextarea({
         {...other}
       />
       <pre ref={hiddenWidthRef} className="hidden-text-width">
-        {hiddenData}
+        {hiddenWidthData}
       </pre>
       <pre
         ref={hiddenHeightRef}
         className="hidden-text-height"
         dangerouslySetInnerHTML={{
-          __html: data?.replace(/\n/gi, (str) => {
+          __html: hiddenHeightData?.replace(/\n/gi, (str) => {
             return '<br />';
           }),
         }}

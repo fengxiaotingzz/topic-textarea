@@ -6,7 +6,7 @@ export default function TopicList({
   topicListData = [],
   setShowTopic,
   onClickTopicItem = () => {},
-  lineHeight = 15,
+  lineHeight = 0,
   renderTopicItem,
 }) {
   return (
