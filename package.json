@@ -1,6 +1,6 @@
 {
   "name": "topic-textarea",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "./dist/bundle.js",
   "scripts": {
@@ -20,6 +20,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "react-infinite-scroller": "^1.2.6",
     "@babel/preset-flow": "^7.18.6",
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
@@ -43,7 +44,7 @@
     "webpack-dev-server": "^4.7.1"
   },
   "peerDependencies": {
-    "react": ">=16.11.0",
-    "react-dom": ">=16.11.0"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   }
 }

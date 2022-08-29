@@ -9,11 +9,11 @@ function TopicTextarea({ placeholder = '' }) {
     <div className="topic-textarea-box">
       <Textarea
         maxLen={1000}
-        onInputTopic={(e) => console.log(11, e)}
+        // onInputTopic={(e) => console.log(11, e)}
         topicList={['11', '22']}
-        onClickTopicItem={(e) => console.log(222, e)}
+        // onClickTopicItem={(e) => console.log(222, e)}
         renderTopicItem={({ value, index }) => <div>xxxx{value}</div>}
-        onChange={(e) => console.log(e)}
+        // onChange={(e) => console.log(e)}
       />
     </div>
   );

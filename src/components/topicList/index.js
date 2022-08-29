@@ -1,4 +1,5 @@
 import React from 'react';
+import InfiniteScroll from 'react-infinite-scroller';
 
 export default function TopicList({
   width = 0,
@@ -8,28 +9,31 @@ export default function TopicList({
   onClickTopicItem = () => {},
   lineHeight = 0,
   renderTopicItem,
+  srcollOptons = {},
 }) {
   return (
     <div
       style={{ left: width, top: height + lineHeight }}
       className="topic-list"
     >
-      {topicListData?.map((val, i) => {
-        return (
-          <div
-            className="topic-item"
-            onClick={() => {
-              onClickTopicItem(val);
-              setShowTopic(false);
-            }}
-            key={i}
-          >
-            {renderTopicItem
-              ? renderTopicItem({ value: val, index: i })
-              : `#${val}`}
-          </div>
-        );
-      })}
+      <InfiniteScroll {...srcollOptons}>
+        {topicListData?.map((val, i) => {
+          return (
+            <div
+              className="topic-item"
+              onClick={() => {
+                onClickTopicItem(val);
+                setShowTopic(false);
+              }}
+              key={i}
+            >
+              {renderTopicItem
+                ? renderTopicItem({ value: val, index: i })
+                : `#${val}`}
+            </div>
+          );
+        })}
+      </InfiniteScroll>
     </div>
   );
 }

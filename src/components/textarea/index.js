@@ -9,13 +9,14 @@ export default function TopicTextarea({
   onChange = () => {},
   onInputTopic = () => {},
   onClickTopicItem = () => {},
+  srcollOptons = {},
   ...other
 }) {
   const [data, setData] = useState('');
   const [hiddenWidthData, setHiddenWidthData] = useState('');
   const [hiddenHeightData, setHiddenHeightData] = useState('');
   const [showTopic, setShowTopic] = useState(false);
-  const [topicPos, setTopicPos] = useState({ width: 0, height: 0 });
+  const [topicPos, setTopicPos] = useState({});
   const inputRef = useRef();
   const hiddenWidthRef = useRef();
   const hiddenHeightRef = useRef();
@@ -28,38 +29,21 @@ export default function TopicTextarea({
   const getMarkNumber = (value) => value?.match(/#/gi)?.length || 0;
 
   // 获取光标所在的index
-  const getCursorIndex = () => {
-    const target = inputRef.current;
-    let position = -1;
-    // 非IE浏览器
-    if (target?.selectionStart > -1) {
-      position = target.selectionStart;
-    } else {
-      // IE
-      const range = document?.selection?.createRange();
-      range?.moveStart('character', -target.value.length);
-      position = range?.text?.length;
-    }
-
-    return position;
-  };
+  const getCursorIndex = () => window.getSelection().anchorOffset || 0;
 
   // 获取话题显示的位置
   const getTopicListPos = () => {
     const inputWidth = inputRef.current?.offsetWidth;
     const inputHeight = inputRef.current?.offsetHeight;
-    let hiddenWrap = hiddenWidthRef.current?.getBoundingClientRect();
-    let hiddenWidth = hiddenWrap?.width;
+    let hiddenWidth = hiddenWidthRef.current.offsetWidth;
     let lineNumber = parseInt(hiddenWidth / inputWidth) + 1;
 
-    if (Math.floor(hiddenWidth / inputWidth) === 0) {
-      textWidthRef.current = parseInt(hiddenWidth / hiddenWidthData?.length);
+    let width = hiddenWidth;
+    if (hiddenWidth > inputWidth) {
+      width = hiddenWidth % inputWidth;
     }
-    hiddenWidth = hiddenWidth + textWidthRef.current * lineNumber;
 
-    const width = hiddenWidth % inputWidth;
     let height = hiddenHeightRef.current?.clientHeight;
-
     if (height > inputHeight) {
       height = inputHeight;
     }
@@ -67,94 +51,134 @@ export default function TopicTextarea({
     lineNumberRef.current = lineNumber;
 
     return {
-      width: width,
+      width,
       height,
     };
   };
 
   const onChangeTextArea = (e) => {
-    let value = e?.target?.value;
+    let value = e?.target?.innerText;
     const len = value?.length;
 
     if (len <= maxLen) {
       setData(value);
       onChange(value);
 
-      if (isCompositionRef.current) return false;
+      const index = getCursorIndex();
+
+      console.log(
+        1,
+        index,
+        window.getSelection().anchorOffset,
+        window.getSelection().focusOffset,
+      );
+
+      const markNumber = getMarkNumber(value);
+      let lastLineIndex = value.substring(0, index + 1).lastIndexOf('\n');
+
+      if (markNumber % 2 !== 0) {
+        lastLineIndex = lastLineIndex > -1 ? lastLineIndex : 0;
+        indexRef.current = index;
+        setHiddenWidthData(value.substring(lastLineIndex, index + 1));
+        setTopicPos(getTopicListPos());
+      } else {
+        setHiddenWidthData('');
+        setTopicPos({});
+      }
     }
   };
 
-  // 获取当前话题
-  const getCurrentTopic = () => {
-    const index = data?.lastIndexOf('#');
-    const topic = data?.slice(index + 1, data?.length);
+  useEffect(() => {
+    if (topicPos?.width && topicPos?.height) {
+      setShowTopic(true);
+    }
+  }, [topicPos]);
 
-    onInputTopic(topic);
-  };
+  // 获取当前话题
+  // const getCurrentTopic = () => {
+  //   const index = data?.lastIndexOf('#');
+  //   const topic = data?.slice(index + 1, data?.length);
+
+  //   onInputTopic(topic);
+  // };
 
   // 点击话题列表中的话题时
   const onClickTopicItemFunc = (e) => {
     const index = indexRef.current;
-    const len = data?.length;
-    const lastMarkIndex = data?.substring(0, index).lastIndexOf('#');
+    const node = inputRef.current;
+    const value = node.innerText;
+    const len = value?.length;
+
+    const lastMarkIndex = value?.substring(0, index).lastIndexOf('#');
     const resultValue =
-      data?.substring(0, lastMarkIndex + 1) +
+      value?.substring(0, lastMarkIndex + 1) +
       e +
       '#' +
-      data?.substring(index, len);
-
+      value?.substring(index, len);
     setData(resultValue);
     onChange(resultValue);
     setHiddenWidthData('');
     setHiddenHeightData('');
+    node.innerText = resultValue;
   };
 
   // 点击输入框
-  const onClickInput = (e) => {
-    const index = getCursorIndex();
-    indexRef.current = index;
+  // const onClickInput = (e) => {
+  //   const index = getCursorIndex();
+  //   indexRef.current = index;
 
-    if (index !== e.target.value.length && showTopic) setShowTopic(false);
-  };
+  //   if (index !== e?.target?.value?.length && showTopic) setShowTopic(false);
+  // };
 
-  useEffect(() => {
-    const markNumber = getMarkNumber(data);
+  // useEffect(() => {
+  //   const markNumber = getMarkNumber(data);
 
-    if (markNumber % 2 !== 0) {
-      const index = getCursorIndex();
-      const lastLineIndex = data.substring(0, index).lastIndexOf('\n');
-      const resultValue = data?.substring(lastLineIndex + 1, index);
-      indexRef.current = index;
+  //   if (markNumber % 2 !== 0) {
+  //     const index = getCursorIndex();
+  //     const lastLineIndex = data.substring(0, index).lastIndexOf('\n');
+  //     const resultValue = data?.substring(lastLineIndex + 1, index);
+  //     indexRef.current = index;
 
-      setHiddenHeightData(data.substring(0, index));
-      setHiddenWidthData(resultValue);
-    } else {
-      setShowTopic(false);
+  //     setHiddenHeightData(data.substring(0, index));
+  //     setHiddenWidthData(resultValue);
+  //   } else {
+  //     setShowTopic(false);
 
-      const arr = data.match(/(?<=#).*?(?=#)/gi);
-      const topics = arr?.filter((val, i) => i % 2 === 0);
+  //     const arr = data.match(/(?<=#).*?(?=#)/gi);
+  //     const topics = arr?.filter((val, i) => i % 2 === 0);
 
-      onClickTopicItem(topics);
-    }
-  }, [data]);
+  //     onClickTopicItem(topics);
+  //   }
+  // }, [data]);
 
-  useEffect(() => {
-    const markNumber = getMarkNumber(data);
+  // useEffect(() => {
+  //   const markNumber = getMarkNumber(data);
 
-    if (markNumber % 2 !== 0) {
-      getCurrentTopic();
-      setTopicPos(getTopicListPos());
-      setShowTopic(true);
-    } else {
-      if (showTopic) {
-        setShowTopic(false);
-      }
-    }
-  }, [hiddenWidthData]);
+  //   if (markNumber % 2 !== 0) {
+  //     getCurrentTopic();
+  //     setTopicPos(getTopicListPos());
+  //     setShowTopic(true);
+  //   } else {
+  //     if (showTopic) {
+  //       setShowTopic(false);
+  //     }
+  //   }
+  // }, [hiddenWidthData]);
 
   return (
     <div className="topic-textarea-comp">
-      <textarea
+      <div
+        contentEditable="true"
+        type="textarea"
+        placeholder={placeholder}
+        className="topic-textarea"
+        // onChange={onChangeTextArea}
+        onKeyUp={onChangeTextArea}
+        // onClick={onClickInput}
+        ref={inputRef}
+        {...other}
+      ></div>
+      {/* <textarea
         type="textarea"
         placeholder={placeholder}
         className="topic-textarea"
@@ -168,7 +192,7 @@ export default function TopicTextarea({
         value={data}
         ref={inputRef}
         {...other}
-      />
+      /> */}
       <div ref={hiddenWidthRef} className="hidden-text-width">
         {hiddenWidthData}
       </div>
@@ -176,9 +200,7 @@ export default function TopicTextarea({
         ref={hiddenHeightRef}
         className="hidden-text-height"
         dangerouslySetInnerHTML={{
-          __html: hiddenHeightData?.replace(/\n/gi, (str) => {
-            return '<br />';
-          }),
+          __html: data?.replace(/\n/gi, ''),
         }}
       ></div>
       {maxLen && (
@@ -186,13 +208,14 @@ export default function TopicTextarea({
           {data?.length}/{maxLen}
         </div>
       )}
-      {showTopic && (
+      {showTopic && topicList.length && (
         <TopicList
           {...topicPos}
           topicListData={topicList}
           onClickTopicItem={onClickTopicItemFunc}
           setShowTopic={setShowTopic}
           renderTopicItem={renderTopicItem}
+          srcollOptons={srcollOptons}
         />
       )}
     </div>

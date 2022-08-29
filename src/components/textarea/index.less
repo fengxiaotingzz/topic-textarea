@@ -4,6 +4,7 @@
   min-width: 100px;
   min-height: 100px;
   position: relative;
+  font-size: 12px;
 
   .topic-textarea {
     width: 100%;
@@ -12,24 +13,23 @@
     font-size: 12px;
     padding: 0;
     box-sizing: border-box;
+    border: 1px solid #e0e0ee;
   }
 
   .hidden-text-width {
-    display: inline-block;
     white-space: nowrap;
-    font-size: 12px;
-    visibility: hidden;
     position: absolute;
     z-index: -1;
     border: 1px solid transparent;
+    box-sizing: border-box;
+    visibility: hidden;
   }
 
   .hidden-text-height {
+    box-sizing: border-box;
     display: block;
     word-break: break-all;
     white-space: break-spaces;
-    font-size: 12px;
-    visibility: hidden;
     position: absolute;
     z-index: -1;
     border: 1px solid transparent;
