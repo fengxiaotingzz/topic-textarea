@@ -25,7 +25,12 @@ export default function TopicTextarea({
   const lineNumberRef = useRef(0);
 
   // 判断当前输入中#号的个数
-  const getMarkNumber = (value) => value?.match(/#/gi)?.length || 0;
+  const getMarkNumber = (index) => {
+    let lastLineIndex = data.substring(0, index + 1).lastIndexOf('\n');
+
+    if (lastLineIndex === -1) lastLineIndex = 0;
+    return data.substring(lastLineIndex, index + 1).match(/#/gi)?.length || 0;
+  };
 
   // 获取光标所在的index
   const getCursorIndex = () => {
@@ -118,10 +123,11 @@ export default function TopicTextarea({
   };
 
   useEffect(() => {
-    const markNumber = getMarkNumber(data);
+    const index = getCursorIndex();
+    const markNumber = getMarkNumber(index);
 
-    if (markNumber % 2 !== 0) {
-      const index = getCursorIndex();
+    if (markNumber && markNumber % 2 !== 0) {
+      if (data[index - 1] === '\n') setShowTopic(false);
       const lastLineIndex = data.substring(0, index).lastIndexOf('\n');
       const resultValue = data?.substring(lastLineIndex + 1, index);
       indexRef.current = index;
@@ -139,9 +145,10 @@ export default function TopicTextarea({
   }, [data]);
 
   useEffect(() => {
-    const markNumber = getMarkNumber(data);
+    const index = getCursorIndex();
+    const markNumber = getMarkNumber(index);
 
-    if (markNumber % 2 !== 0) {
+    if (markNumber && markNumber % 2 !== 0) {
       getCurrentTopic();
       setTopicPos(getTopicListPos());
       setShowTopic(true);
